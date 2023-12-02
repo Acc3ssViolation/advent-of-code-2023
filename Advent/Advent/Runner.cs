@@ -17,17 +17,19 @@ namespace Advent
 
         public void Add(IAssignment assignment) => _assignments.Add(assignment);
 
-        public void Prepare()
+        public async Task PrepareAsync(DataDownloader downloader, CancellationToken cancellationToken)
         {
             // Set us up as a higher priority process 
             var process = Process.GetCurrentProcess();
             process.PriorityClass = ProcessPriorityClass.High;
             process.PriorityBoostEnabled = true;
+            
 
             foreach (var assignment in _assignments)
             {
                 var method = assignment.GetType().GetRuntimeMethods().First(m => m.Name == nameof(IAssignment.Run));
                 RuntimeHelpers.PrepareMethod(method.MethodHandle);
+                await downloader.DownloadDay(assignment.Day, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -49,7 +51,7 @@ namespace Advent
 
                 try
                 {
-                    var inputName = Path.Combine("Data", assingment.TestFile.ToLowerInvariant());
+                    var inputName = Path.Combine(PathManager.DataDirectory, assingment.TestFile.ToLowerInvariant());
 
                     if (!File.Exists(inputName))
                         continue;
@@ -137,7 +139,7 @@ namespace Advent
 
                 try
                 {
-                    var inputName = Path.Combine("Data", assingment.InputFile.ToLowerInvariant());
+                    var inputName = Path.Combine(PathManager.DataDirectory, assingment.InputFile.ToLowerInvariant());
 
                     Logger.DebugLine($"Loading data from {inputName} for assignment {assingment.Name}");
                     var lines = await File.ReadAllLinesAsync(inputName, cancellationToken).ConfigureAwait(false);

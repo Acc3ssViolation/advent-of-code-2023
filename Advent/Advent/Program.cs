@@ -72,12 +72,10 @@ var interfaceType = typeof(IAssignment);
 //runner.Add(new Day25_2());
 #endif
 
-runner.LogTimingToFile = true;
-runner.Prepare();
-
 var cookie = await File.ReadAllTextAsync("Data/cookie.txt", default);
 using var downloader = new DataDownloader(cookie, 2023);
-await downloader.DownloadDay(1, default);
+runner.LogTimingToFile = true;
+await runner.PrepareAsync(downloader, default);
 
 //await runner.RunTestsAsync(default);
 

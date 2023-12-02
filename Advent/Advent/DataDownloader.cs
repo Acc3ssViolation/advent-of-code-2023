@@ -9,7 +9,7 @@ namespace Advent
 {
     internal class DataDownloader : IDisposable
     {
-        private const string DownloadDirectory = "D:/Projects/advent-of-code-2023/Advent/Advent/Data";
+        private static readonly string DownloadDirectory = PathManager.DataDirectory;
         private const string BaseUrl = "https://adventofcode.com";
         private readonly string _sessionCookie;
         private readonly int _year;
@@ -28,12 +28,14 @@ namespace Advent
             if (File.Exists(file))
                 return;
 
+            Logger.Line($"Downloading data for day {day} of the {_year} AoC edition...");
             var http = GetClient();
             var response = await http.GetAsync($"{BaseUrl}/{_year}/day/{day}/input", cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             using var fs = File.Create(file);
             await stream.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
+            Logger.Line($"Saved to {file}");
         }
 
         private HttpClient GetClient()

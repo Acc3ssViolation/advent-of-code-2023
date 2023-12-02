@@ -20,6 +20,18 @@ namespace Advent
 
         virtual string TestFile => "test-" + InputFile;
 
+        virtual int Day
+        {
+            get
+            {
+                var name = GetType().Name;
+                var dayEnd = name.IndexOf("_");
+                if (dayEnd == -1)
+                    return 1;
+                return int.Parse(name.AsSpan(dayEnd - 2, 2));
+            }
+        }
+
         virtual int Part
         {
             get
