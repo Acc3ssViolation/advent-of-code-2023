@@ -77,7 +77,7 @@ using var downloader = new DataDownloader(cookie, 2023);
 runner.LogTimingToFile = true;
 await runner.PrepareAsync(downloader, default);
 
-//await runner.RunTestsAsync(default);
+await runner.RunTestsAsync(default);
 
 //Console.WriteLine("Press any key to continue...");
 //try { Console.Read(); } catch { return; }
