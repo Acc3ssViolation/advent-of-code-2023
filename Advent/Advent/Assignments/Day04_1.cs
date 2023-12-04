@@ -16,14 +16,10 @@ namespace Advent.Assignments
             const int GameCount = 25;
 
             var wins = new int[WinCount];
-            var games = new int[GameCount];
             var totalScore = 0;
 
             foreach (var cardLine in input)
             {
-                Array.Clear(wins, 0, wins.Length);
-                Array.Clear(games, 0, games.Length);
-
                 for (var i = 0; i < WinCount; i++)
                 {
                     wins[i] = ParseDoubleDigitInt(cardLine.AsSpan(WinStart + i * 3));
