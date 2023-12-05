@@ -79,8 +79,8 @@ await runner.PrepareAsync(downloader, default);
 
 await runner.RunTestsAsync(default);
 
-//Console.WriteLine("Press any key to continue...");
-//try { Console.Read(); } catch { return; }
+Console.WriteLine("Press any key to continue...");
+try { Console.Read(); } catch { return; }
 
 for (var i = 0; i < Iterations; i++)
     await runner.RunAsync(default);
