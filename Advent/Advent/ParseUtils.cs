@@ -2,6 +2,21 @@
 {
     internal static class ParseUtils
     {
+        public static long ToLongIgnoreWhitespace(this ReadOnlySpan<char> str)
+        {
+            var num = 0L;
+            foreach (var chr in str)
+            {
+                if (!char.IsNumber(chr))
+                {
+                    continue;
+                }
+                num *= 10;
+                num += chr - '0';
+            }
+            return num;
+        }
+
         public static int ParseIntPositive(string str, ref int index)
         {
             var num = 0;
