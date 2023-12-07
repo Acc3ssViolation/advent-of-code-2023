@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Advent.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,23 +9,6 @@ namespace Advent.Assignments
 {
     internal class Day03_1 : IAssignment
     {
-        struct Point
-        {
-            public int x;
-            public int y;
-
-            public Point(int x, int y)
-            {
-                this.x = x;
-                this.y = y;
-            }
-
-            public override string ToString()
-            {
-                return $"[{x}, {y}]";
-            }
-        }
-
         class Num
         {
             public int Value { get; }
