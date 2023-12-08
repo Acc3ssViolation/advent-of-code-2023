@@ -1,45 +1,31 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Advent.Assignments
+﻿namespace Advent.Assignments
 {
-    internal class Day08_1 : IAssignment, IEqualityComparer<ReadOnlyMemory<char>>
+    internal class Day08_1 : IAssignment
     {
-        public bool Equals(ReadOnlyMemory<char> x, ReadOnlyMemory<char> y)
-            => x.Span.SequenceEqual(y.Span);
-
-        public int GetHashCode([DisallowNull] ReadOnlyMemory<char> obj)
-        {
-            var span = obj.Span;
-            return span[0] + span[1] + span[2];
-        }
+        private record Node(string Name, string Left, string Right);
 
         public string Run(IReadOnlyList<string> input)
         {
-            var dict = new Dictionary<ReadOnlyMemory<char>, (ReadOnlyMemory<char> Left, ReadOnlyMemory<char> Right)>(this);
+            var dict = new Dictionary<string, Node>();
 
             var commands = input[0];
-            ReadOnlyMemory<char> place = default;
-            ReadOnlyMemory<char> end = default;
 
             foreach (var line in input.Skip(2))
             {
-                var key = line.AsMemory(0, 3);
-                var left = line.AsMemory(7, 3);
-                var right = line.AsMemory(12, 3);
-
-                if (place.IsEmpty && Equals(key, "AAA".AsMemory()))
-                    place = key;
-                else if (end.IsEmpty && Equals(key, "ZZZ".AsMemory()))
-                    end = key;
+                var key = line.Substring(0, 3);
+                var left = line.Substring(7, 3);
+                var right = line.Substring(12, 3);
                 
-                dict.Add(key, (left, right));
+                dict.Add(key, new Node(key, left, right));
             }
 
             var steps = 0;
 
+            var place = "AAA";
+            var end = "ZZZ";
+
             var commandIndex = 0;
-            while (!Equals(place, end))
+            while (!string.Equals(place, end, StringComparison.OrdinalIgnoreCase))
             {
                 var options = dict[place];
                 var command = commands[commandIndex++];
