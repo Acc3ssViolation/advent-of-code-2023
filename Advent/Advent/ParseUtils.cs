@@ -38,6 +38,10 @@
         {
             bool negative = false;
             var num = 0;
+            while (index < str.Length && !char.IsNumber(str[index]) && str[index] != '-')
+            {
+                index++;
+            }
             if (str[index] == '-')
             {
                 negative = true;
