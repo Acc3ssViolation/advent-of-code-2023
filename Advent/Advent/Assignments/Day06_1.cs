@@ -10,10 +10,8 @@ namespace Advent.Assignments
     {
         public string Run(IReadOnlyList<string> input)
         {
-            var grid = new GridParser();
-
-            var row1 = grid.ParseColumns(1, input[0]);
-            var row2 = grid.ParseColumns(1, input[1]);
+            var row1 = input[0].ExtractInts();
+            var row2 = input[1].ExtractInts();
 
             var totalOptions = 1;
             for (var i = 0; i < row1.Count; i++)

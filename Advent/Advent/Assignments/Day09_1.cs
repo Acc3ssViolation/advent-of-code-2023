@@ -13,12 +13,7 @@ namespace Advent.Assignments
             var total = 0;
             foreach (var item in input)
             {
-                var index = 0;
-                var sequence = new List<int>();
-                while (index < item.Length)
-                {
-                    sequence.Add(ParseUtils.ParseInt(item, ref index));
-                }
+                var sequence = item.ExtractInts();
 
                 //Logger.DebugLine($"Sequence [{string.Join(' ', sequence)}]");
 

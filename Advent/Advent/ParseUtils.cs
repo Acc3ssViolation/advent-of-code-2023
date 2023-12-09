@@ -1,4 +1,7 @@
-﻿namespace Advent
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
+
+namespace Advent
 {
     internal static class ParseUtils
     {
@@ -15,6 +18,112 @@
                 num += chr - '0';
             }
             return num;
+        }
+
+        public static int ToInt(this string str)
+        {
+            bool negative = false;
+            var num = 0;
+            var index = 0;
+            if (str[index] == '-')
+            {
+                negative = true;
+                index++;
+            }
+            while (index < str.Length)
+            {
+                var chr = str[index];
+                if (!char.IsNumber(chr))
+                {
+                    break;
+                }
+                num *= 10;
+                num += chr - '0';
+                index++;
+            }
+            return negative ? -num : num;
+        }
+
+        public static List<long> ExtractLongs(this string str)
+        {
+            const int FlagNegative = 1;
+            const int FlagPush = 2;
+            var result = new List<long>(str.Length / 4);
+            var temp = 0L;
+            var flags = 0;
+            for (var i = 0; i < str.Length; i++)
+            {
+                var chr = str[i];
+                var digit = chr - '0';
+                if (digit >= 0 && digit <= 9)
+                {
+                    temp *= 10;
+                    temp += digit;
+                    flags |= FlagPush;
+                }
+                else if (chr == '-')
+                {
+                    flags |= FlagNegative;
+                }
+                else
+                {
+                    if ((flags & FlagNegative) != 0)
+                        result.Add(-temp);
+                    else
+                        result.Add(temp);
+                    temp = 0;
+                    flags = 0;
+                }
+            }
+            if ((flags & FlagPush) != 0)
+            {
+                if ((flags & FlagNegative) != 0)
+                    result.Add(-temp);
+                else
+                    result.Add(temp);
+            }
+            return result;
+        }
+
+        public static List<int> ExtractInts(this string str)
+        {
+            const int FlagNegative = 1;
+            const int FlagPush = 2;
+            var result = new List<int>(str.Length / 4);
+            var temp = 0;
+            var flags = 0;
+            for (var i = 0; i < str.Length; i++)
+            {
+                var chr = str[i];
+                var digit = chr - '0';
+                if (digit >= 0 && digit <= 9) 
+                {
+                    temp *= 10;
+                    temp += digit;
+                    flags |= FlagPush;
+                }
+                else if (chr == '-')
+                {
+                    flags |= FlagNegative;
+                }
+                else if ((flags & FlagPush) != 0)
+                {
+                    if ((flags & FlagNegative) != 0)
+                        result.Add(-temp);
+                    else
+                        result.Add(temp);
+                    temp = 0;
+                    flags = 0;
+                }
+            }
+            if ((flags & FlagPush) != 0)
+            {
+                if ((flags & FlagNegative) != 0)
+                    result.Add(-temp);
+                else
+                    result.Add(temp);
+            }
+            return result;
         }
 
         public static int ParseIntPositive(string str, ref int index)
