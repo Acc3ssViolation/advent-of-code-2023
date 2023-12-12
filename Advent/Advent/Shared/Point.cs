@@ -1,6 +1,6 @@
 ﻿namespace Advent.Shared
 {
-    internal struct Point
+    public struct Point
     {
         public static readonly Point North = new(0, -1);
         public static readonly Point South = new(0, 1);
@@ -35,6 +35,7 @@
         public static Point operator -(Point a, Point b) => new(a.x - b.x, a.y - b.y);
         public static Point operator *(int n, Point a) => new(a.x * n, a.y * n);
         public static Point operator *(Point a, int n) => new(a.x * n, a.y * n);
+        public static Point operator /(Point a, int n) => new(a.x / n, a.y / n);
 
         public static bool operator ==(Point a, Point b) => a.x == b.x && a.y == b.y;
         public static bool operator !=(Point a, Point b) => a.x != b.x || a.y != b.y;

@@ -24,5 +24,13 @@ namespace Advent.Shared
                 return a;
             return GreatestCommonDivisor(b, a % b);
         }
+
+        public static void Populate<T>(this T[] arr, T value)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                arr[i] = value;
+            }
+        }
     }
 }
