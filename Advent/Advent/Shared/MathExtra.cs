@@ -32,5 +32,10 @@ namespace Advent.Shared
                 arr[i] = value;
             }
         }
+
+        public static int UniquePairCount(int count)
+        {
+            return count * (count - 1) / 2;
+        }
     }
 }
