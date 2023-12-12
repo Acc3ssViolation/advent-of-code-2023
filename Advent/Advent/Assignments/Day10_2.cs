@@ -11,6 +11,7 @@ namespace Advent.Assignments
 
         public string Run(IReadOnlyList<string> input)
         {
+            return string.Empty;
             var grid = new CharGrid(input);
             var start = Point.Zero;
             var blitGrid = new CharGrid(grid.Width * 3, grid.Height * 3);
