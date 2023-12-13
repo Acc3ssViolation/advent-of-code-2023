@@ -31,18 +31,18 @@ namespace Advent.Assignments
         {
             var grid = new CharGrid(lines);
 
-            Logger.DebugLine("===================");
+            //Logger.DebugLine("===================");
             var yMirror = IsMirroredVertically(grid);
             var score = (yMirror + 1) * 100;
-            Logger.DebugLine($"Mirror Y: {yMirror}");
+            //Logger.DebugLine($"Mirror Y: {yMirror}");
             if (yMirror < 0)
             {
                 var xMirror = IsMirroredHorizontally(grid);
-                Logger.DebugLine($"Mirror X: {xMirror}");
+                //Logger.DebugLine($"Mirror X: {xMirror}");
                 score = (xMirror + 1);
             }
-            Logger.DebugLine($"Score: {score}");
-            Logger.DebugLine("===================");
+            //Logger.DebugLine($"Score: {score}");
+            //Logger.DebugLine("===================");
             lines.Clear();
 
             return score;
@@ -58,7 +58,7 @@ namespace Advent.Assignments
                 {
                     continue;
                 }
-                Logger.DebugLine($"[{x}] {row1} == [{x + 1}] {row2}");
+                //Logger.DebugLine($"[{x}] {row1} == [{x + 1}] {row2}");
 
                 // Potential mirror point, verify it
                 var checkCount = Math.Min(x, grid.Width - x - 2);
@@ -72,7 +72,7 @@ namespace Advent.Assignments
                         verified = false;
                         break;
                     }
-                    Logger.DebugLine($"[{x - 1 - i}] {row3} == [{x + 2 + i}] {row4}");
+                    //Logger.DebugLine($"[{x - 1 - i}] {row3} == [{x + 2 + i}] {row4}");
                 }
 
                 if (verified)
