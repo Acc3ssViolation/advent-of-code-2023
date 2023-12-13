@@ -8,6 +8,8 @@ namespace Advent.Assignments
     {
         public string Run(IReadOnlyList<string> input)
         {
+            return string.Empty;
+
             var total = 0;
             foreach (var line in input)
             {
