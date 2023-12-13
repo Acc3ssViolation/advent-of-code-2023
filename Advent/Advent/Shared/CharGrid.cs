@@ -36,6 +36,21 @@ namespace Advent.Assignments
             }
         }
 
+        public Span<char> GetRow(int row)
+        {
+            return _data.AsSpan(row * Width, Width);
+        }
+
+        public Span<char> GetCol(int col)
+        {
+            var result = new char[Height];
+            for (var y = 0; y < Height; y++)
+            {
+                result[y] = _data[y * Width + col];
+            }
+            return result;
+        }
+
         public Point Find(char chr)
         {
             for (var y = 0; y < Height; y++)
