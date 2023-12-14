@@ -14,6 +14,8 @@ namespace Advent
         private List<IAssignment> _assignments = new();
 
         public bool LogTimingToFile { get; set; }
+        public int MaxDay { get; set; } = 100;
+        public List<int> SkipDays { get; set; } = new();
 
         public void Add(IAssignment assignment) => _assignments.Add(assignment);
 
@@ -48,6 +50,12 @@ namespace Advent
             {
                 if (cancellationToken.IsCancellationRequested)
                     break;
+
+                if (assingment.Day > MaxDay)
+                    break;
+
+                if (SkipDays.Contains(assingment.Day))
+                    continue;
 
                 try
                 {
@@ -136,6 +144,12 @@ namespace Advent
             {
                 if (cancellationToken.IsCancellationRequested)
                     break;
+
+                if (assingment.Day > MaxDay)
+                    break;
+
+                if (SkipDays.Contains(assingment.Day))
+                    continue;
 
                 try
                 {

@@ -4,6 +4,8 @@ namespace Advent.Assignments
 {
     internal class Day10_1 : IAssignment
     {
+        //public string InputFile => "day10_alt.txt";
+
         public string Run(IReadOnlyList<string> input)
         {
             var grid = new StringGrid(input);
