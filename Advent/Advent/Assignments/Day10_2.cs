@@ -10,16 +10,16 @@ namespace Advent.Assignments
         public string Run(IReadOnlyList<string> input)
         {
             var grid = new CharGrid(input);
-            var loop = Prepare(grid);
+            Prepare(grid);
 
-            var insideCount = Scan(grid, loop.ToHashSet());
+            var insideCount = Scan(grid);
 
             //Logger.DebugLine(grid.ToString());
 
             return insideCount.ToString();
         }
 
-        private static int Scan(CharGrid grid, HashSet<Point> loop)
+        private static int Scan(CharGrid grid)
         {
             var insideCount = 0;
 
@@ -35,18 +35,20 @@ namespace Advent.Assignments
                 for (var x = 0; x < grid.Width; x++)
                 {
                     var point = new Point(x, y);
-                    var tile = grid[point];
-                    if (!loop.Contains(point))
+                    int tile = grid[point];
+                    var isLoop = (tile & 0x80) != 0;
+                    if (!isLoop)
                     {
                         // Empty space, count it if we're inside the loop
                         if (inside)
                         {
-                            grid[point] = 'I';
+                            //grid[point] = 'I';
                             //debugGrid[point] = 'I';
                             insideCount++;
                         }
                         continue;
                     }
+                    tile &= 0x7F;
 
                     if (tile == '|')
                     {
@@ -108,21 +110,19 @@ namespace Advent.Assignments
             return insideCount;
         }
 
-        private static List<Point> Prepare(CharGrid grid)
+        private static void Prepare(CharGrid grid)
         {
-            var loop = new List<Point>();
             var start = grid.Find('S');
             var (place, next) = ReplaceStart(grid, start) ?? throw new Exception();
             //Logger.DebugLine(grid.ToString());
-            loop.Add(start);
+            grid[start] = (char)(grid[start] | 0x80);
             while (true)
             {
-                loop.Add(place);
+                grid[place] = (char)(grid[place] | 0x80);
                 (place, next) = GetNext(place, next, grid);
                 if (place == start)
                     break;
             }
-            return loop;
         }
 
         private static (Point Point, Point Next)? ReplaceStart(CharGrid grid, Point start)
