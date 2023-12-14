@@ -12,14 +12,14 @@ namespace Advent.Assignments
             var grid = new CharGrid(input);
             var loop = Prepare(grid);
 
-            var insideCount = Scan(grid, loop);
+            var insideCount = Scan(grid, loop.ToHashSet());
 
             //Logger.DebugLine(grid.ToString());
 
             return insideCount.ToString();
         }
 
-        private static int Scan(CharGrid grid, List<Point> loop)
+        private static int Scan(CharGrid grid, HashSet<Point> loop)
         {
             var insideCount = 0;
 
