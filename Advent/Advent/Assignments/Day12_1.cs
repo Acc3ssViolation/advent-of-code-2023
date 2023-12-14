@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Advent.Assignments
@@ -8,191 +9,134 @@ namespace Advent.Assignments
     {
         public string Run(IReadOnlyList<string> input)
         {
-            return string.Empty;
-
-            var total = 0;
-            foreach (var line in input)
+            var sum = 0L;
+            foreach (var item in input)
             {
-                var parts = line.Split(' ');
-                var groups = parts[1].ExtractInts();
+                var parts = item.Split(' ');
                 var record = parts[0];
-                var states = GeneratePossibleStates(record).ToList();
-                var validCount = 0;
-                foreach (var state in states)
-                {
-                    //Logger.DebugLine($"\t{record} => {state}");
-                    if (Validate(state, groups))
-                        validCount++;
-                }
-                total += validCount;
-                //Logger.DebugLine($"{line} => {validCount}");
+                var groups = parts[1].ExtractInts();
+                var options = RecursionMem(record, groups);
+                sum += options;
+                //Logger.DebugLine($"{record} {string.Join(',', groups)} has {options} options");
             }
-
-            return total.ToString();
+            return sum.ToString();
         }
 
-        private static bool Validate(string state, List<int> groups)
+        private class Comparer : IEqualityComparer<(string, List<int>)>
         {
-            var parts = state.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (parts.Length != groups.Count)
-                return false;
-
-            for (var i = 0; i < parts.Length; i++)
+            public bool Equals((string, List<int>) x, (string, List<int>) y)
             {
-                if (parts[i].Length != groups[i])
+                if (!string.Equals(x.Item1, y.Item1, StringComparison.Ordinal))
                     return false;
+                return x.Item2.SequenceEqual(y.Item2);
             }
 
-            return true;
+            public int GetHashCode([DisallowNull] (string, List<int>) obj)
+            {
+                return HashCode.Combine(obj.Item1, obj.Item2.Count);
+            }
         }
 
-        private static IEnumerable<string> GeneratePossibleStates(string input)
+        public static readonly Func<string, List<int>, long> RecursionMem = Memoization.Memoized<string, List<int>, long>(SolveRecursive, new Comparer());
+        
+        public static long SolveRecursive(string input, List<int> groups)
         {
             if (input.Length == 0)
             {
-                yield return input;
-                yield break;
+                return groups.Count == 0 ? 1 : 0;
             }
 
-            if (input[0] == '?')
+            var chr = input[0];
+            if (chr == '.')
             {
-                foreach (var result in GeneratePossibleStates(input.Substring(1)))
-                {
-                    yield return "." + result;
-                    yield return "#" + result;
-                }
+                return RecursionMem(input.Substring(1), groups);
+            }
+            else if (chr == '?')
+            {
+                var mutableInput = input.ToCharArray();
+                mutableInput[0] = '#';
+                var sum = RecursionMem(new string(mutableInput), groups);
+                mutableInput[0] = '.';
+                sum += RecursionMem(new string(mutableInput), groups);
+                return sum;
             }
             else
             {
-                foreach (var result in GeneratePossibleStates(input.Substring(1)))
+                Debug.Assert(chr == '#');
+
+                if (groups.Count == 0)
+                    return 0;
+
+                var expectedCount = groups[0];
+                if (input.Length < expectedCount)
+                    return 0;
+
+                for (var i = 1; i < expectedCount; i++)
                 {
-                    yield return input[0] + result;
+                    if (input[i] == '.')
+                        return 0;
                 }
+
+                // Next one after a group MUST be '.' or end of the line
+                if (input.Length == expectedCount)
+                {
+                    // Done, we're out of space and this is the last group
+                    if (groups.Count == 1)
+                        return 1;
+                    // We have a group left and we are out of space, oops
+                    return 0;
+                }
+
+                // Ensure next char is a '.'
+                if (input[expectedCount] == '#')
+                {
+                    // The group that fits here must be longer, no match
+                    return 0;
+                }
+                // Set the next char to a '.' and go
+                var mutableInput = input.Substring(expectedCount).ToCharArray();
+                mutableInput[0] = '.';
+                return RecursionMem(new string(mutableInput), groups.Skip(1).ToList());
             }
         }
 
-        private class SpringRecord
+    }
+
+    internal class Memoization
+    {
+        public static Func<T1, TResult> Memoized<T1, TResult>(Func<T1, TResult> func, IEqualityComparer<T1>? comparer = null) where T1 : notnull
         {
-            private class Group
+            var dict = new Dictionary<T1, TResult>(comparer);
+            return (t1) =>
             {
-                public string Data { get; }
-                public int BrokenSprings { get; }
-                public int UnknownSprings { get; }
-
-                public Group(string data)
+                if (!dict.TryGetValue(t1, out TResult? result))
                 {
-                    Data = data;
-                    for (var i = 0; i < data.Length; i++)
-                    {
-                        var chr = data[i];
-                        if (chr == '?')
-                            UnknownSprings++;
-                        else if (chr == '#')
-                            BrokenSprings++;
-                    }
+                    result = func(t1);
+                    dict.Add(t1, result);
                 }
+                return result;
+            };
+        }
 
-                public IReadOnlyList<Group> Apply(int brokenSprings)
-                {
-                    // This group already contains more springs, it cannot match
-                    if (brokenSprings < BrokenSprings)
-                        return Array.Empty<Group>();
-
-                    // This group cannot support this many springs
-                    var springsToAdd = brokenSprings - BrokenSprings;
-                    if (springsToAdd > UnknownSprings)
-                        return Array.Empty<Group>();
-
-                    // This group is fully resolved
-                    if (UnknownSprings == 0)
-                        return new[] { this };
-
-                    // We use all slots
-                    if (springsToAdd == UnknownSprings)
-                        return new[] { new Group(new string('#', Data.Length)) };
-
-                    // We will have some unknowns remaining... See what we can do
-                    var totalSprings = Data.Length;
-                    var maxShift = totalSprings - brokenSprings;
-                    var result = new List<Group>();
-                    for (var i = 0; i < maxShift + 1; i++)
-                    {
-                        // Try all options?
-                        var sb = new StringBuilder();
-                        var combinedNewSprings = 0;
-                        var newSpringsAdded = 0;
-                        for (var k = 0; k < Data.Length; k++)
-                        {
-                            var addSpring = false;
-                            if (Data[k] == '#')
-                            {
-                                addSpring = true;
-                            }
-
-                            if (k >= i && newSpringsAdded < brokenSprings)
-                            {
-                                newSpringsAdded++;
-                                addSpring = true;
-                            }
-
-                            if (addSpring)
-                            {
-                                combinedNewSprings++;
-                                sb.Append('#');
-                            }
-                            else
-                            {
-                                sb.Append('?');
-                            }
-                        }
-
-                        // This shift is valid if we added all new broken springs
-                        if (newSpringsAdded == brokenSprings)
-                        {
-                            result.Add(new Group(sb.ToString()));
-                        }
-                    }
-                    return result;
-                }
-
-                public override string ToString()
-                {
-                    return Data;
-                }
-            }
-
-
-            public string Data { get; }
-            public List<int> BrokenSprings { get; }
-
-            public SpringRecord(string data, List<int> brokenSprings)
+        public static Func<T1, T2, TResult> Memoized<T1, T2, TResult>(Func<T1, T2, TResult> func, IEqualityComparer<(T1, T2)>? comparer = null)
+        {
+            var dict = new Dictionary<(T1, T2), TResult>(comparer);
+            long hits = 0;
+            long miss = 0;
+            return (t1, t2) =>
             {
-                Data = data;
-                BrokenSprings = brokenSprings;
-            }
-
-            public int Solve()
-            {
-                var groups = Data.Split('.', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(g => new Group(g)).ToList();
-
-                Debug.Assert(groups.Count <= BrokenSprings.Count);
-
-                for (var i = 0; i < BrokenSprings.Count; i++)
+                if (!dict.TryGetValue((t1, t2), out TResult? result))
                 {
-                    foreach (var group in groups)
-                    {
-                        var solvedGroups = group.Apply(BrokenSprings[i]);
-
-                    }
+                    result = func(t1, t2);
+                    dict.Add((t1, t2), result);
+                    miss++;
                 }
-
-                return 0;
-            }
-
-            public override string ToString()
-            {
-                return $"{Data} {string.Join(',', BrokenSprings)}";
-            }
+                else
+                {
+                    hits++;
+                }
+                return result;
+            };
         }
     }
 }

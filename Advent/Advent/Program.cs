@@ -78,8 +78,8 @@ runner.LogTimingToFile = true;
 await runner.PrepareAsync(downloader, default);
 
 //runner.SkipDays.Add(10);
-runner.SkipDays.Add(12);
-runner.MaxDay = 10;
+//runner.SkipDays.Add(12);
+runner.MaxDay = 12;
 await runner.RunTestsAsync(default);
 
 Console.WriteLine("Press any key to continue...");

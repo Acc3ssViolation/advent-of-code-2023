@@ -33,6 +33,16 @@ namespace Advent.Shared
             }
         }
 
+        public static T[] Repeat<T>(this List<T> list, int count)
+        {
+            var result = new T[count * list.Count];
+            for (var i = 0; i < count; i++)
+            {
+                list.CopyTo(result, list.Count * i);
+            }
+            return result;
+        }
+
         public static int UniquePairCount(int count)
         {
             return count * (count - 1) / 2;
