@@ -26,12 +26,6 @@ namespace Advent.Assignments
             return rocks.ToString();
         }
 
-        enum State
-        {
-            SearchingRock,
-
-        }
-
         private static int SlideRocks(CharGrid grid)
         {
             var score = 0;
@@ -42,7 +36,6 @@ namespace Advent.Assignments
             {
                 var emptyStart = 0;         // Start of empty space
                 var rocksStart = 0;         // Start of the rocks
-                var rocksEnd = 0;           // 1 past the last rock
                 var inRock = false;
 
                 for (var y = 0; y < grid.Height; y++)
@@ -52,17 +45,16 @@ namespace Advent.Assignments
 
                     if (inRock)
                     {
-                        rocksEnd = y;
                         if (tile != Rock)
                         {
                             // Ran out of rocks to move
                             var distance = rocksStart - emptyStart;
                             // Move the entire block down
-                            for (var ny = rocksStart; ny < rocksEnd; ny++)
+                            for (var ny = rocksStart; ny < y; ny++)
                             {
                                 grid[new Point(x, ny)] = Air;
                             }
-                            for (var ny = rocksStart - distance; ny < rocksEnd - distance; ny++)
+                            for (var ny = rocksStart - distance; ny < y - distance; ny++)
                             {
                                 grid[new Point(x, ny)] = Rock;
                                 var weight = grid.Height - ny;
@@ -75,7 +67,7 @@ namespace Advent.Assignments
                             }
                             else
                             {
-                                emptyStart = rocksEnd - distance;
+                                emptyStart = y - distance;
                             }
                             inRock = false;
                         }
@@ -99,15 +91,14 @@ namespace Advent.Assignments
 
                 if (inRock)
                 {
-                    rocksEnd = grid.Height;
                     // Ran out of rocks to move
                     var distance = rocksStart - emptyStart;
                     // Move the entire block down
-                    for (var ny = rocksStart; ny < rocksEnd; ny++)
+                    for (var ny = rocksStart; ny < grid.Height; ny++)
                     {
                         grid[new Point(x, ny)] = Air;
                     }
-                    for (var ny = rocksStart - distance; ny < rocksEnd - distance; ny++)
+                    for (var ny = rocksStart - distance; ny < grid.Height - distance; ny++)
                     {
                         grid[new Point(x, ny)] = Rock;
                         var weight = grid.Height - ny;
