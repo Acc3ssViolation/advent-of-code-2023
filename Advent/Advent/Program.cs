@@ -1,24 +1,29 @@
-﻿#define AUTO_LOAD_ASSIGNMENTS
+﻿//#define AUTO_LOAD_ASSIGNMENTS
 using Advent;
 using Advent.Assignments;
 
 var runner = new Runner();
 
-const int Iterations = 1;
+const int Iterations = 10;
 //Logger.SetLevel(LogLevel.Info);
 
 #if AUTO_LOAD_ASSIGNMENTS
 var interfaceType = typeof(IAssignment);
-    var all = AppDomain.CurrentDomain.GetAssemblies()
-      .SelectMany(x => x.GetTypes())
-      .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-      .Select(x => Activator.CreateInstance(x));
+var all = AppDomain.CurrentDomain.GetAssemblies()
+    .SelectMany(x => x.GetTypes())
+    .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+    .Select(x => Activator.CreateInstance(x));
 
-    foreach (var item in all)
-    {
-        if (item is IAssignment assignment)
-            runner.Add(assignment);
-    }
+foreach (var item in all)
+{
+    if (item is IAssignment assignment)
+        runner.Add(assignment);
+}
+
+// Slow-ish days, skip during normal runs
+runner.SkipDays.Add(14);
+runner.SkipDays.Add(12);
+//runner.MaxDay = 12;
 #else
 //runner.Add(new Day01_1());
 //runner.Add(new Day01_2());
@@ -46,8 +51,8 @@ var interfaceType = typeof(IAssignment);
 //runner.Add(new Day12_2());
 //runner.Add(new Day13_1());
 //runner.Add(new Day13_2());
-//runner.Add(new Day14_1());
-//runner.Add(new Day14_2());
+runner.Add(new Day14_1());
+runner.Add(new Day14_2());
 //runner.Add(new Day15_1());
 //runner.Add(new Day15_2());
 //runner.Add(new Day16_1());
@@ -76,11 +81,6 @@ var cookie = await File.ReadAllTextAsync("Data/cookie.txt", default);
 using var downloader = new DataDownloader(cookie, 2023);
 runner.LogTimingToFile = true;
 await runner.PrepareAsync(downloader, default);
-
-// Slow-ish days, skip during normal runs
-runner.SkipDays.Add(14);
-runner.SkipDays.Add(12);
-//runner.MaxDay = 12;
 await runner.RunTestsAsync(default);
 
 Console.WriteLine("Press any key to continue...");
