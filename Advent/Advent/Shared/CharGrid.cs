@@ -1,9 +1,84 @@
 ﻿using Advent.Shared;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Advent.Assignments
 {
-    public class CharGrid
+    public interface ICharGrid
+    {
+        int Width { get; }
+        int Height { get; }
+        char[] Chars { get; }
+        char this[Point point] { get; set; }
+    }
+
+    public class CharGridSwapXY: ICharGrid
+    {
+        public int Width { get; }
+        public int Height { get; }
+        public char[] Chars => _data;
+
+        public char this[Point point]
+        {
+            get => _data[point.y + point.x * Height];
+            set => _data[point.y + point.x * Height] = value;
+        }
+
+        private readonly char[] _data;
+
+        public CharGridSwapXY(ICharGrid grid)
+        {
+            Width = grid.Height;
+            Height = grid.Width;
+            _data = grid.Chars;
+        }
+    }
+
+    public class CharGridSwapXYMirrorY : ICharGrid
+    {
+        public int Width { get; }
+        public int Height { get; }
+        public char[] Chars => _data;
+
+        public char this[Point point]
+        {
+            get => _data[(Width - 1 - point.y) + point.x * Height];
+            set => _data[(Width - 1 - point.y) + point.x * Height] = value;
+        }
+
+        private readonly char[] _data;
+
+        public CharGridSwapXYMirrorY(ICharGrid grid)
+        {
+            Width = grid.Height;
+            Height = grid.Width;
+            _data = grid.Chars;
+        }
+    }
+
+    public class CharGridMirrorY : ICharGrid
+    {
+        public int Width { get; }
+        public int Height { get; }
+        public char[] Chars => _data;
+
+        public char this[Point point]
+        {
+            get => _data[point.x + (Height - 1 - point.y) * Width];
+            set => _data[point.x + (Height - 1 - point.y) * Width] = value;
+        }
+
+        private readonly char[] _data;
+
+        public CharGridMirrorY(ICharGrid grid)
+        {
+            Width = grid.Width;
+            Height = grid.Height;
+            _data = grid.Chars;
+        }
+    }
+
+    public class CharGrid : ICharGrid
     {
         public int Width { get; }
         public int Height { get; }

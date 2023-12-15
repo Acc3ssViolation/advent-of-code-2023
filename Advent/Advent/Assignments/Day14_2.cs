@@ -71,98 +71,122 @@ namespace Advent.Assignments
 
         private static (int Start, int Duration) FindLoop(CharGrid grid, out List<List<Point>> rockLists)
         {
-            rockLists = new List<List<Point>>();
+            rockLists = new List<List<Point>>(200);
+            var westGrid = new CharGridSwapXY(grid);
+            var southGrid = new CharGridMirrorY(grid);
+            var eastGrid = new CharGridSwapXYMirrorY(grid);
             while (true)
             {
-                var rocks = SlideRocks(grid);
+                var rocks = SlideRocks(grid, westGrid, southGrid, eastGrid);
                 //Logger.DebugLine(PlotRocks(rocks, grid.Width, grid.Height));
                 var duplicateIndex = rockLists.FindIndex(l => l.SequenceEqual(rocks));
                 if (duplicateIndex != -1)
                 {
                     var cycleCount = rockLists.Count - duplicateIndex;
-                    return (duplicateIndex,  cycleCount);
+                    return (duplicateIndex, cycleCount);
                 }
                 rockLists.Add(rocks);
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool SlideRock(CharGrid grid, Point point, Point dir, int maxAmount, out Point newPoint)
+        private static List<Point> SlideRocks(ICharGrid northGrid, ICharGrid westGrid, ICharGrid southGrid, ICharGrid eastGrid)
         {
-            newPoint = new Point(point);
-            var tile = grid[point];
-            if (tile != Rock)
-                return false;
-
-            newPoint = new Point(point);
-            for (var i = 1; i <= maxAmount; i++)
-            {
-                var p = point + (dir * i);
-                if (grid[p] != Air)
-                    break;
-                newPoint = p;
-            }
-
-            if (newPoint != point)
-            {
-                grid[newPoint] = Rock;
-                grid[point] = Air;
-            }
-
-            return true;
-        }
-
-        private static List<Point> SlideRocks(CharGrid grid)
-        {
-            //Logger.DebugLine(grid.ToString());
-
-            // Slide north
-            for (var y = 0; y < grid.Height; y++)
-            {
-                for (var x = 0; x < grid.Width; x++)
-                {
-                    SlideRock(grid, new Point(x, y), Point.North, y, out var _);
-                }
-            }
+            SlideRocksNorth(northGrid);
+            SlideRocksNorth(westGrid);
+            SlideRocksNorth(southGrid);
+            SlideRocksNorth(eastGrid);
 
             //Logger.DebugLine(grid.ToString());
-
-            // Slide west
-            for (var x = 0; x < grid.Width; x++)
-            {
-                for (var y = 0; y < grid.Height; y++)
-                {
-                    SlideRock(grid, new Point(x, y), Point.West, x, out var _);
-                }
-            }
-
             //Logger.DebugLine(grid.ToString());
 
-
-            // Slide south
-            for (var y = grid.Height - 1; y >= 0; y--)
-            {
-                for (var x = 0; x < grid.Width; x++)
-                {
-                    SlideRock(grid, new Point(x, y), Point.South, grid.Height - y - 1, out var _);
-                }
-            }
-
-            //Logger.DebugLine(grid.ToString());
-
-            var rocks = new List<Point>();
+            var rocks = new List<Point>(2000);
             // Slide east
-            for (var x = grid.Width - 1; x >= 0; x--)
+            for (var y = 0; y < northGrid.Height; y++)
             {
-                for (var y = 0; y < grid.Height; y++)
+                for (var x = 0; x < northGrid.Width; x++)
                 {
-                    if (SlideRock(grid, new Point(x, y), Point.East, grid.Width - x - 1, out var rockPoint))
+                    var rockPoint = new Point(x, y);
+                    if (northGrid[rockPoint] == Rock)
                         rocks.Add(rockPoint);
                 }
             }
 
             //Logger.DebugLine(grid.ToString());
             return rocks;
+        }
+
+        private static void SlideRocksNorth(ICharGrid grid)
+        {
+            for (var x = 0; x < grid.Width; x++)
+            {
+                var emptyStart = 0;         // Start of empty space
+                var rocksStart = 0;         // Start of the rocks
+                var inRock = false;
+
+                for (var y = 0; y < grid.Height; y++)
+                {
+                    var point = new Point(x, y);
+                    var tile = grid[point];
+
+                    if (inRock)
+                    {
+                        if (tile != Rock)
+                        {
+                            // Ran out of rocks to move
+                            var distance = rocksStart - emptyStart;
+                            // Move the entire block down
+                            for (var ny = rocksStart; ny < y; ny++)
+                            {
+                                grid[new Point(x, ny)] = Air;
+                            }
+                            for (var ny = rocksStart - distance; ny < y - distance; ny++)
+                            {
+                                grid[new Point(x, ny)] = Rock;
+                            }
+                            // Start of next empty space is after the moved rocks
+                            if (tile == Solid)
+                            {
+                                emptyStart = y + 1;
+                            }
+                            else
+                            {
+                                emptyStart = y - distance;
+                            }
+                            inRock = false;
+                        }
+                    }
+                    else
+                    {
+                        // Not yet in a rock
+                        if (tile == Rock)
+                        {
+                            // Found the start of a rock formation
+                            rocksStart = y;
+                            inRock = true;
+                        }
+                        else if (tile == Solid)
+                        {
+                            // The next one might be empty
+                            emptyStart = y + 1;
+                        }
+                    }
+                }
+
+                if (inRock)
+                {
+                    // Ran out of rocks to move
+                    var distance = rocksStart - emptyStart;
+                    // Move the entire block down
+                    for (var ny = rocksStart; ny < grid.Height; ny++)
+                    {
+                        grid[new Point(x, ny)] = Air;
+                    }
+                    for (var ny = rocksStart - distance; ny < grid.Height - distance; ny++)
+                    {
+                        grid[new Point(x, ny)] = Rock;
+                    }
+                }
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Advent.Assignments
             return rocks.ToString();
         }
 
-        private static int SlideRocks(CharGrid grid)
+        private static int SlideRocks(ICharGrid grid)
         {
             var score = 0;
 
