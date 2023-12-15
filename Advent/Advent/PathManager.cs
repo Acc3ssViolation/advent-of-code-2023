@@ -1,9 +1,20 @@
-﻿namespace Advent
+﻿using System.Runtime.InteropServices;
+
+namespace Advent
 {
     internal static class PathManager
     {
 #if DEBUG
-        private static readonly string BaseDir = "D:/Projects/advent-of-code-2023/Advent/Advent/";
+        private static string BaseDir
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return "D:/Projects/advent-of-code-2023/Advent/Advent/";
+                else
+                    return AppContext.BaseDirectory;
+            }
+        }
 #else
         private static readonly string BaseDir = AppContext.BaseDirectory;
 #endif

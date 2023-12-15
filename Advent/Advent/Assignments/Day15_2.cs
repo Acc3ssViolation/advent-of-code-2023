@@ -47,7 +47,7 @@ namespace Advent.Assignments
                     else
                         list[lensIndex] = new Lens(label, focalLength);
 
-                    DumpBoxes(boxes);
+                    // DumpBoxes(boxes);
                 }
                 else if (chr == '-')
                 {
@@ -59,7 +59,7 @@ namespace Advent.Assignments
                         list.RemoveAll(l => l.Label == label);
                     }
 
-                    DumpBoxes(boxes);
+                    // DumpBoxes(boxes);
                 }
                 else if (chr == ',')
                 {
@@ -95,7 +95,6 @@ namespace Advent.Assignments
 
         private static void DumpBoxes(List<Lens>[] boxes)
         {
-            return;
             for (var i = 0; i < boxes.Length; i++)
             {
                 var box = boxes[i];

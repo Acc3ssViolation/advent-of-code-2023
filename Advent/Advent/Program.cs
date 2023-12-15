@@ -4,7 +4,7 @@ using Advent.Assignments;
 
 var runner = new Runner();
 
-const int Iterations = 10;
+const int Iterations = 1;
 //Logger.SetLevel(LogLevel.Info);
 
 #if AUTO_LOAD_ASSIGNMENTS
@@ -51,11 +51,11 @@ runner.SkipDays.Add(12);
 //runner.Add(new Day12_2());
 //runner.Add(new Day13_1());
 //runner.Add(new Day13_2());
-runner.Add(new Day14_1());
-runner.Add(new Day14_2());
-//runner.Add(new Day15_1());
-//runner.Add(new Day15_2());
-//runner.Add(new Day16_1());
+//runner.Add(new Day14_1());
+//runner.Add(new Day14_2());
+runner.Add(new Day15_1());
+runner.Add(new Day15_2());
+runner.Add(new Day16_1());
 //runner.Add(new Day16_2());
 //runner.Add(new Day17_1());
 //runner.Add(new Day17_2());

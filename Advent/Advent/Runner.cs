@@ -22,9 +22,16 @@ namespace Advent
         public async Task PrepareAsync(DataDownloader downloader, CancellationToken cancellationToken)
         {
             // Set us up as a higher priority process 
-            var process = Process.GetCurrentProcess();
-            process.PriorityClass = ProcessPriorityClass.High;
-            process.PriorityBoostEnabled = true;
+            try
+            {
+                var process = Process.GetCurrentProcess();
+                process.PriorityClass = ProcessPriorityClass.High;
+                process.PriorityBoostEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.WarningLine($"Failed to setup high prio process: {ex}");
+            }
             
 
             foreach (var assignment in _assignments)
