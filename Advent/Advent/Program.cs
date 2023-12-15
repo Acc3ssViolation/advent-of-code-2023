@@ -77,9 +77,10 @@ using var downloader = new DataDownloader(cookie, 2023);
 runner.LogTimingToFile = true;
 await runner.PrepareAsync(downloader, default);
 
-//runner.SkipDays.Add(10);
-//runner.SkipDays.Add(12);
-runner.MaxDay = 12;
+// Slow-ish days, skip during normal runs
+runner.SkipDays.Add(14);
+runner.SkipDays.Add(12);
+//runner.MaxDay = 12;
 await runner.RunTestsAsync(default);
 
 Console.WriteLine("Press any key to continue...");
