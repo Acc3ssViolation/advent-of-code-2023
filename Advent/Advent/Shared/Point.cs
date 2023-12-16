@@ -40,6 +40,12 @@
         public static bool operator ==(Point a, Point b) => a.x == b.x && a.y == b.y;
         public static bool operator !=(Point a, Point b) => a.x != b.x || a.y != b.y;
 
+        public void Deconstruct(out int x, out int y)
+        {
+            x = this.x;
+            y = this.y;
+        }
+
         public override string ToString()
         {
             return $"[{x},{y}]";
