@@ -57,6 +57,18 @@ namespace Advent.Shared
             };
         }
 
+        public static Point ToPoint(this Direction direction)
+        {
+            return direction switch
+            {
+                Direction.North => Point.North,
+                Direction.East => Point.East,
+                Direction.South => Point.South,
+                Direction.West => Point.West,
+                _ => Point.North,       // Should never happen
+            };
+        }
+
         public static Direction ToDirection(this Point point)
         {
             return point switch
