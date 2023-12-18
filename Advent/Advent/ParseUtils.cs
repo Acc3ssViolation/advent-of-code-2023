@@ -20,6 +20,39 @@ namespace Advent
             return num;
         }
 
+        public static int ToHexInt(this string str)
+        {
+            bool negative = false;
+            var num = 0;
+            var index = 0;
+            if (str[index] == '-')
+            {
+                negative = true;
+                index++;
+            }
+            while (index < str.Length)
+            {
+                var chr = str[index];
+                if (char.IsAsciiDigit(chr))
+                {
+                    num *= 16;
+                    num += chr - '0';
+                }
+                else if (char.IsBetween(chr, 'a', 'f'))
+                {
+                    num *= 16;
+                    num += chr - 'a' + 10;
+                }
+                else
+                {
+                    break;
+                }
+
+                index++;
+            }
+            return negative ? -num : num;
+        }
+
         public static int ToInt(this string str)
         {
             bool negative = false;

@@ -11,6 +11,8 @@
         public int x;
         public int y;
 
+        public int Length => Math.Abs(x) + Math.Abs(y);
+
         public Point()
         {
             x = 0;
