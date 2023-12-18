@@ -57,7 +57,7 @@ namespace Advent.Shared
             };
         }
 
-        public static Point ToPoint(this Direction direction)
+        public static Point ToVector(this Direction direction)
         {
             return direction switch
             {

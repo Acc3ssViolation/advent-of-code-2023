@@ -119,8 +119,8 @@ namespace Advent.Assignments
 
                 if (canTurn)
                 {
-                    var leftDir = node.Direction.ToDirection().Left().ToPoint();
-                    var rightDir = node.Direction.ToDirection().Right().ToPoint();
+                    var leftDir = node.Direction.ToDirection().Left().ToVector();
+                    var rightDir = node.Direction.ToDirection().Right().ToVector();
                     var leftPoint = node.Point + leftDir;
                     var rightPoint = node.Point + rightDir;
 

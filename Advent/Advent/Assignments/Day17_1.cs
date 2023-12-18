@@ -107,8 +107,8 @@ namespace Advent.Assignments
                     };
                 }
 
-                var leftDir = node.Direction.ToDirection().Left().ToPoint();
-                var rightDir = node.Direction.ToDirection().Right().ToPoint();
+                var leftDir = node.Direction.ToDirection().Left().ToVector();
+                var rightDir = node.Direction.ToDirection().Right().ToVector();
                 var neighbourCount = node.StraightCount > 0 ? 3 : 2;
                 var neighbours = new List<Node>(neighbourCount);
 
