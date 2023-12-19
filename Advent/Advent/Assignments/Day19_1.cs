@@ -43,7 +43,7 @@ namespace Advent.Assignments
         enum Comparison
         {
             GreaterThan,
-            LesserThen,
+            LesserThan,
         }
 
         enum Result
@@ -79,7 +79,7 @@ namespace Advent.Assignments
                     _ => -1,
                 };
 
-                if (Comparison == Comparison.LesserThen)
+                if (Comparison == Comparison.LesserThan)
                 {
                     if (value < Value)
                         return Action.Execute(scope, item);
@@ -259,7 +259,7 @@ namespace Advent.Assignments
                 var value = tokenizer.NextNumber();
                 tokenizer.AssertNext(':');
                 var action = ParseAction(tokenizer);
-                return new ConditionalAction(action, field, value, chr == '<' ? Comparison.LesserThen : Comparison.GreaterThan);
+                return new ConditionalAction(action, field, value, chr == '<' ? Comparison.LesserThan : Comparison.GreaterThan);
             }
             else
             {
