@@ -173,7 +173,7 @@ namespace Advent.Assignments
             public string Input
             {
                 get => _input;
-                set 
+                set
                 {
                     _input = value;
                     _index = 0;
@@ -243,7 +243,7 @@ namespace Advent.Assignments
                 }
                 tokenizer.AssertNext(',');
             }
-            
+
             return new Rule(name, actions);
         }
 
