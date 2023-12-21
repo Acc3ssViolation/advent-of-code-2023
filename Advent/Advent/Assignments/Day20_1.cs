@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Advent.Assignments
 {
@@ -14,13 +15,34 @@ namespace Advent.Assignments
 
         private abstract class Node
         {
-            protected List<Node> Inputs { get; } = new List<Node>();
-            protected List<Node> Outputs { get; } = new List<Node>();
+            public List<Node> Inputs { get; protected set; }
+            public List<Node> Outputs { get; protected set; }
             public string Name { get; }
+
+            public Node(Node node)
+            {
+                Name = node.Name;
+                Inputs = node.Inputs;
+                Outputs = node.Outputs;
+
+                foreach (var input in Inputs)
+                {
+                    var index = input.Outputs.IndexOf(node);
+                    input.Outputs[index] = this;
+                }
+
+                foreach (var output in Outputs)
+                {
+                    var index = output.Inputs.IndexOf(node);
+                    output.Inputs[index] = this;
+                }
+            }
 
             public Node(string name)
             {
                 Name = name;
+                Inputs = new List<Node>();
+                Outputs = new List<Node>();
             }
 
             public void ConnectTo(Node other)
@@ -44,7 +66,11 @@ namespace Advent.Assignments
 
         private class BroadcastNode : Node
         {
-            public BroadcastNode() : base("broadcast")
+            public BroadcastNode(Node node) : base(node)
+            {
+            }
+
+            public BroadcastNode() : base("broadcaster")
             {
             }
 
@@ -53,7 +79,7 @@ namespace Advent.Assignments
 
             public override string ToString()
             {
-                return "broadcast";
+                return "broadcaster";
             }
         }
 
@@ -75,6 +101,10 @@ namespace Advent.Assignments
         private class FlipFlopNode : Node
         {
             private bool _on;
+
+            public FlipFlopNode(Node node) : base(node)
+            {
+            }
 
             public FlipFlopNode(string name) : base(name)
             {
@@ -99,6 +129,10 @@ namespace Advent.Assignments
         {
             private ulong _lastInputs;
             private ulong _lastInputsMask;
+
+            public ConjunctionNode(Node node) : base(node)
+            {
+            }
 
             public ConjunctionNode(string name) : base(name)
             {
@@ -134,34 +168,72 @@ namespace Advent.Assignments
             }
         }
 
+        private Dictionary<string, Node> GetNodes(IReadOnlyList<string> input)
+        {
+            var nodes = new Dictionary<string, Node>();
+            foreach (var line in input)
+            {
+                var parts = line.Split(" -> ", StringSplitOptions.None);
+                var nameWithPrefix = parts[0];
+                var connections = parts[1].Split(',', StringSplitOptions.TrimEntries);
+
+                Node? node;
+
+                // Make sure the main node is added
+                if (nameWithPrefix == "broadcaster")
+                {
+                    nodes.TryGetValue(nameWithPrefix, out node);
+                    if (node != null)
+                        node = new BroadcastNode(node);
+                    else
+                        node = new BroadcastNode();
+                    nodes[nameWithPrefix] = node;
+                }
+                else if (nameWithPrefix.StartsWith("&"))
+                {
+                    var name = nameWithPrefix.Substring(1);
+                    nodes.TryGetValue(name, out node);
+                    if (node != null)
+                        node = new ConjunctionNode(node);
+                    else
+                        node = new ConjunctionNode(name);
+                    nodes[name] = node;
+                }
+                else if (nameWithPrefix.StartsWith("%"))
+                {
+                    var name = nameWithPrefix.Substring(1);
+                    nodes.TryGetValue(name, out node);
+                    if (node != null)
+                        node = new FlipFlopNode(node);
+                    else
+                        node = new FlipFlopNode(name);
+                    nodes[name] = node;
+                }
+                else
+                {
+                    continue;
+                }
+
+                // Create the connections
+                foreach (var connectionName in connections)
+                {
+                    if (!nodes.TryGetValue(connectionName, out var connection))
+                    {
+                        // Create a (temporary) VoidNode
+                        connection = new VoidNode(connectionName);
+                        nodes[connectionName] = connection;
+                    }
+
+                    node.ConnectTo(connection);
+                }
+            }
+            return nodes;
+        }
+
         public string Run(IReadOnlyList<string> input)
         {
-            var broadcaster = new BroadcastNode();
-            var a = new FlipFlopNode("a");
-            var b = new FlipFlopNode("b");
-            var inv = new ConjunctionNode("inv");
-            var con = new ConjunctionNode("con");
-            var output = new VoidNode("output");
-
-            broadcaster.ConnectTo(a);
-            a.ConnectTo(inv);
-            a.ConnectTo(con);
-            inv.ConnectTo(b);
-            b.ConnectTo(con);
-            con.ConnectTo(output);
-
-
-            //var a = new FlipFlopNode("a");
-            //var b = new FlipFlopNode("b");
-            //var c = new FlipFlopNode("c");
-            //var inv = new ConjunctionNode("inv");
-            //broadcaster.ConnectTo(a);
-            //broadcaster.ConnectTo(b);
-            //broadcaster.ConnectTo(c);
-            //a.ConnectTo(b);
-            //b.ConnectTo(c);
-            //c.ConnectTo(inv);
-            //inv.ConnectTo(a);
+            var nodes = GetNodes(input);
+            var broadcaster = (BroadcastNode)nodes["broadcaster"];
 
             var signalQueue = new Queue<Signal>();
             var lowCount = 0;
